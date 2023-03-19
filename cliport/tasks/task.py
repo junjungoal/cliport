@@ -1,5 +1,4 @@
 """Base Task class."""
-
 import collections
 import os
 import random
@@ -32,7 +31,8 @@ class Task():
 
         # Workspace bounds.
         self.pix_size = 0.003125
-        self.bounds = np.array([[0.25, 0.75], [-0.5, 0.5], [0, 0.3]])
+        # self.bounds = np.array([[0.3, 0.7], [-0.5, 0.5], [0, 0.3]])
+        self.bounds = np.array([[0.3, 0.7], [-0.4, 0.4], [0, 0.3]])
         self.zone_bounds = np.copy(self.bounds)
 
         self.goals = []
@@ -50,6 +50,8 @@ class Task():
                              'call set_assets_root().')
         self.goals = []
         self.lang_goals = []
+        self.present_objects = []
+        self.geometric_predicates = {}
         self.progress = 0  # Task progression metric in range [0, 1].
         self._rewards = 0  # Cumulative returned rewards.
 
@@ -318,6 +320,9 @@ class Task():
             return self.task_completed_desc
         else:
             return self.lang_goals[0]
+
+    def get_present_objects(self):
+        return self.present_objects
 
     def get_reward(self):
         return float(self._rewards)

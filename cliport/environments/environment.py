@@ -5,6 +5,7 @@ import tempfile
 import time
 import cv2
 import imageio
+import copy
 
 import gym
 import numpy as np
@@ -51,6 +52,7 @@ class Environment(gym.Env):
         self.agent_cams = cameras.RealSenseD415.CONFIG
         self.record_cfg = record_cfg
         self.save_video = False
+        self.save_frames = record_cfg['save_frames']
         self.step_counter = 0
 
         self.assets_root = assets_root
@@ -68,8 +70,10 @@ class Environment(gym.Env):
             'depth': gym.spaces.Tuple(depth_tuple),
         })
         self.position_bounds = gym.spaces.Box(
-            low=np.array([0.25, -0.5, 0.], dtype=np.float32),
-            high=np.array([0.75, 0.5, 0.28], dtype=np.float32),
+            low=np.array([0.3, -0.5, 0.], dtype=np.float32),
+            high=np.array([0.7, 0.5, 0.28], dtype=np.float32),
+            # low=np.array([0.25, -0.5, 0.], dtype=np.float32),
+            # high=np.array([0.75, 0.5, 0.28], dtype=np.float32),
             shape=(3,),
             dtype=np.float32)
         self.action_space = gym.spaces.Dict({
@@ -155,6 +159,11 @@ class Environment(gym.Env):
         if not self.task:
             raise ValueError('environment task must be set. Call set_task or pass '
                              'the task arg in the environment constructor.')
+
+        self.predicates = []
+        self.colors = []
+        self.depth = []
+        self.task.primitive.reset()
         self.obj_ids = {'fixed': [], 'rigid': [], 'deformable': []}
         p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
         p.setGravity(0, 0, -9.8)
@@ -207,6 +216,7 @@ class Environment(gym.Env):
         if action is not None:
             timeout = self.task.primitive(self.movej, self.movep, self.ee, action['pose0'], action['pose1'])
 
+
             # Exit early if action times out. We still return an observation
             # so that we don't break the Gym API contract.
             if timeout:
@@ -221,6 +231,7 @@ class Environment(gym.Env):
         while not self.is_static:
             self.step_simulation()
 
+        self.task.primitive.reset()
         # Get task rewards.
         reward, info = self.task.reward() if action is not None else (0, {})
         done = self.task.done()
@@ -234,10 +245,25 @@ class Environment(gym.Env):
 
     def step_simulation(self):
         p.stepSimulation()
+        self.task.update_predicates()
         self.step_counter += 1
 
         if self.save_video and self.step_counter % 5 == 0:
             self.add_video_frame()
+
+        if self.save_frames and self.step_counter % 25 == 0:
+            self.add_frames()
+
+    def add_frames(self):
+        # Render frame.
+        config = self.agent_cams[0]
+        image_size = (self.record_cfg['video_height'], self.record_cfg['video_width'])
+        color, depth, _ = self.render_camera(config, image_size, shadow=0)
+        # color = cv2.resize(color, (self.record_cfg['frame_height'], self.record_cfg['frame_width']))
+        # depth = cv2.resize(depth, (self.record_cfg['frame_height'], self.record_cfg['frame_width']))
+        self.predicates.append(copy.deepcopy(self.task.geometric_predicates))
+        self.colors.append(color)
+        self.depth.append(depth)
 
     def render(self, mode='rgb_array'):
         # Render only the color image from the first camera.
@@ -320,6 +346,7 @@ class Environment(gym.Env):
                 info[obj_id] = (pos, rot, dim)
 
         info['lang_goal'] = self.get_lang_goal()
+        info['present_objects'] = self.get_present_objects()
         return info
 
     def set_task(self, task):
@@ -329,6 +356,12 @@ class Environment(gym.Env):
     def get_lang_goal(self):
         if self.task:
             return self.task.get_lang_goal()
+        else:
+            raise Exception("No task for was set")
+
+    def get_present_objects(self):
+        if self.task:
+            return self.task.get_present_objects()
         else:
             raise Exception("No task for was set")
 
@@ -366,6 +399,13 @@ class Environment(gym.Env):
         print(f'Warning: movej exceeded {timeout} second timeout. Skipping.')
         return True
 
+    def start_frame_save(self):
+        p.setRealTimeSimulation(False)
+        self.save_frames = True
+
+    def end_frame_save(self):
+        p.setRealTimeSimulation(True)
+
     def start_rec(self, video_filename):
         assert self.record_cfg
 
@@ -399,6 +439,7 @@ class Environment(gym.Env):
         image_size = (self.record_cfg['video_height'], self.record_cfg['video_width'])
         color, depth, _ = self.render_camera(config, image_size, shadow=0)
         color = np.array(color)
+        depth = np.array(depth)
 
         # Add language instruction to video.
         if self.record_cfg['add_text']:

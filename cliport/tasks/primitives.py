@@ -9,6 +9,7 @@ class PickPlace():
 
     def __init__(self, height=0.32, speed=0.01):
         self.height, self.speed = height, speed
+        self.state = 'pregrasp'
 
     def __call__(self, movej, movep, ee, pose0, pose1):
         """Execute pick and place primitive.
@@ -43,6 +44,7 @@ class PickPlace():
             if timeout:
                 return True
 
+        self.state = 'grasp'
         # Activate end effector, move up, and check picking success.
         ee.activate()
         timeout |= movep(postpick_pose, self.speed)
@@ -63,12 +65,17 @@ class PickPlace():
             ee.release()
             timeout |= movep(postplace_pose)
 
+            self.state = 'place'
+
         # Move to prepick pose if pick is not successful.
         else:
             ee.release()
             timeout |= movep(prepick_pose)
 
         return timeout
+
+    def reset(self):
+        self.state = 'pregrasp'
 
 
 def push(movej, movep, ee, pose0, pose1):  # pylint: disable=unused-argument

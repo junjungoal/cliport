@@ -12,8 +12,17 @@ class RealSenseD415():
     intrinsics = (450., 0, 320., 0, 450., 240., 0, 0, 1)
 
     # Set default camera poses.
-    front_position = (1., 0, 0.75)
-    front_rotation = (np.pi / 4, np.pi, -np.pi / 2)
+    # front_position = (1., 0, 0.75)
+    # front_rotation = (np.pi / 4, np.pi, -np.pi / 2)
+
+    # used
+    # front_position = (0.85, 0, 0.8)
+    # front_rotation = (np.pi / 5, np.pi, -np.pi / 2)
+
+    front_position = (0.65, 0, 0.6)
+    front_rotation = (np.pi / 12, np.pi, -np.pi / 2)
+    # front_position = (0.68, 0, 0.65)
+    # front_rotation = (np.pi / 12, np.pi, -np.pi / 2)
     front_rotation = p.getQuaternionFromEuler(front_rotation)
     left_position = (0, 0.5, 0.75)
     left_rotation = (np.pi / 4.5, np.pi, np.pi / 4)

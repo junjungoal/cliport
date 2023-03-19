@@ -31,3 +31,6 @@ record:
   fps: 20
   video_height: 640
   video_width: 720
+  save_frames: True
+  frame_height: 128
+  frame_width: 128
