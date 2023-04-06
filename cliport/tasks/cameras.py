@@ -19,9 +19,8 @@ class RealSenseD415():
     # front_position = (0.85, 0, 0.8)
     # front_rotation = (np.pi / 5, np.pi, -np.pi / 2)
 
-    # front_position = (1.05, 0, 0.4)
-    front_position = (1.05, 0, 0.45)
-    front_rotation = (np.pi / 3, np.pi, -np.pi / 2)
+    front_position = (1.1, 0, 0.8)
+    front_rotation = (np.pi / 3.5, np.pi, -np.pi / 2)
     # front_position = (0.68, 0, 0.65)
     # front_rotation = (np.pi / 12, np.pi, -np.pi / 2)
     front_rotation = p.getQuaternionFromEuler(front_rotation)

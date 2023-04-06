@@ -32,7 +32,7 @@ class PutBlockInBowlUnseenColors(Task):
         colors = [utils.COLORS[cn] for cn in selected_color_names]
 
         # Add bowls.
-        bowl_size = (0.12, 0.12, 0)
+        bowl_size = (0.18, 0.18, 0)
         bowl_urdf = 'bowl/bowl.urdf'
         bowl_poses = []
         for _ in range(n_bowls):
@@ -43,7 +43,7 @@ class PutBlockInBowlUnseenColors(Task):
 
         # Add blocks.
         blocks = []
-        block_size = (0.04, 0.04, 0.04)
+        block_size = (0.12, 0.12, 0.12)
         block_urdf = 'stacking/block.urdf'
         for _ in range(n_blocks):
             block_pose = self.get_random_pose(env, block_size)
@@ -76,7 +76,7 @@ class PutBlockInBowlUnseenColors(Task):
 
         # Add distractors.
         n_distractors = 0
-        max_distractors = 6
+        max_distractors = 3
         while n_distractors < max_distractors:
             is_block = np.random.rand() > 0.5
             urdf = block_urdf if is_block else bowl_urdf

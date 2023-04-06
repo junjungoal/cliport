@@ -257,8 +257,9 @@ class Environment(gym.Env):
     def add_frames(self):
         # Render frame.
         config = self.agent_cams[0]
-        image_size = (self.record_cfg['video_height'], self.record_cfg['video_width'])
-        color, depth, _ = self.render_camera(config, image_size, shadow=0)
+        # image_size = (self.record_cfg['video_height'], self.record_cfg['video_width'])
+        # color, depth, _ = self.render_camera(config, image_size, shadow=0)
+        color, depth, _ = self.render_camera(config, shadow=0)
         # color = cv2.resize(color, (self.record_cfg['frame_height'], self.record_cfg['frame_width']))
         # depth = cv2.resize(depth, (self.record_cfg['frame_height'], self.record_cfg['frame_width']))
         self.predicates.append(copy.deepcopy(self.task.geometric_predicates))

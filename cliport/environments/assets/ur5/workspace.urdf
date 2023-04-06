@@ -15,7 +15,8 @@
       <geometry>
         <!-- <mesh filename="plane.obj" scale="0.0167 0.0333 1"/> -->
         <!-- <mesh filename="plane.obj" scale="0.014 0.0333 1"/> -->
-        <mesh filename="plane.obj" scale="0.0167 0.027 1"/>
+        <!-- <mesh filename="plane.obj" scale="0.0167 0.027 1"/> -->
+        <mesh filename="plane.obj" scale="0.0167 0.035 1"/>
       </geometry>
       <material name="DarkGrey">
         <color rgba="0.2 0.2 0.2 1"/>

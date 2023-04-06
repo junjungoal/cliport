@@ -107,8 +107,8 @@ def main(cfg):
             new_colors = []
             new_depths = []
             for color, depth in zip(colors, depths):
-                new_colors.append(cv2.resize(color, (cfg['record']['frame_height'], cfg['record']['frame_width'])))
-                new_depths.append(cv2.resize(depth, (cfg['record']['frame_height'], cfg['record']['frame_width'])))
+                new_colors.append(cv2.resize(color[:, 80:-80], (cfg['record']['frame_height'], cfg['record']['frame_width'])))
+                new_depths.append(cv2.resize(depth[:, 80:-80], (cfg['record']['frame_height'], cfg['record']['frame_width'])))
 
             with h5py.File(os.path.join(data_path, 'episodes/episode_{}.h5'.format(dataset.n_episodes)), 'w') as F:
                 F['traj_per_file'] = 1
